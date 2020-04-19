@@ -40,9 +40,13 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
-
+  //Halt if not word aligned
+  if (PC % 4 !=0)
+      return 1;
+  //Get intended instruction from Mem and write to instruction
+  *instruction = Mem[PC >>2];
+  return 0;
 }
-
 
 /* instruction partition */
 /* 10 Points */
@@ -59,8 +63,6 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 
 }
 
-
-
 /* instruction decode */
 /* 15 Points */
 int instruction_decode(unsigned op,struct_controls *controls)
@@ -72,26 +74,33 @@ int instruction_decode(unsigned op,struct_controls *controls)
 /* 5 Points */
 void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigned *data2)
 {
-
+  *data1 = Reg[r1];
+  *data2 = Reg[r2];
 }
-
 
 /* Sign Extend */
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
-
+  //Checks if negative
+    if((offset >> 15) == 1)
+    {
+      *extended_value = offset | 0xFFFF0000;
+    }
+    //Checks if positive
+    else
+    {
+      *extended_value = offset & 0x0000ffff;
+    }
 }
 
 /* ALU operations */
 /* 10 Points */
-
-
-//void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero)
 {
   if (ALUSrc == 1)//extended_value passes as B
   {
+    //if ALUOp is equal to 7, then ALUControl will depend on funct
     if (ALUOp == 7){
       switch(funct){
         case 32: ALU(data1, extended_value, 0, &ALUresult, &Zero); return 0;
@@ -104,6 +113,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
         case 39: ALU(data1, extended_value, 7, &ALUresult, &Zero); return 0;
       }
     }
+    //if ALUOp is not 7, then ALUOp is passed to ALUControl
     if (ALUOp != 7){
       ALU(data1, extended_value, ALUOp, &ALUresult, &Zero);
       return 0;
@@ -112,6 +122,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 
   if(ALUSrc == 0)//data2 passes as B
   {
+    //if ALUOp is equal to 7, then ALUControl will depend on funct
     if (ALUOp == 7){
       switch(funct){
         case 32: ALU(data1, data2, 0, &ALUresult, &Zero); return 0;
@@ -124,6 +135,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
         case 39: ALU(data1, data2, 7, &ALUresult, &Zero); return 0;
       }
     }
+    //if ALUOp is not 7, then ALUOp is passed to ALUControl
     if (ALUOp != 7){
       ALU(data1, data2, ALUOp, &ALUresult, &Zero);
       return 0;
@@ -137,7 +149,21 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
+  //If MemWrite is 1, write value of data 2 to ALUresult
+  if (MemWrite == 1] {
+      if (ALUresult % 4 == 0) //Check word alignment
+          Mem[ALUresult >> 2] = data2;
+  else
+      return 1;
+  }
 
+  if (MemRead == 1)
+  {
+      if (ALUresult % 4 == 0)
+          *memdata = Mem[ALUresult >> 2];
+  else
+      return 1;
+  }
 }
 
 
@@ -145,12 +171,38 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 /* 10 Points */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
-
+  if (RegWrite == 1) {
+      if (MemtoReg == 1) {
+          if (RegDst == 1) {
+              Reg[r3] = memdata;  //writing memdata to rd
+          else
+              Reg[r2] = memdata; //writing memdata to rt
+          }
+      else
+          if (RegDst == 1)
+              Reg [r3] = ALUresult; //writing ALUresult to rd
+          else
+              Reg [r2] = ALUresult; //Writing ALUresult to rt
+      }
+  }
 }
 
 /* PC update */
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
 {
+  //Increment PC by 4 after each update
+   *PC += 4;
 
+   //Checks to see if Branch and Zero is in ALU
+   if(Branch == 1 && Zero == 1)
+   {
+     //Extended value is added to PC
+     *PC += (extended_value << 2);
+   }
+   //If Jump occurs, shift left two times
+   if(Jump == 1)
+   {
+     *PC =  (*PC & 0xf000000) | (jsec << 2);
+   }
 }
