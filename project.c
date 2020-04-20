@@ -203,24 +203,21 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 /* 10 Points */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
-  if (RegWrite == 1) {
-  if (MemtoReg == 1) {
-  if (RegDst == 1) {
-  Reg[r3] = memdata;
-} //writing memdata to rd
-  else
-  Reg[r2] = memdata; //writing memdata to rt
-  }
-  else {
-  if (RegDst == 1)
-  Reg [r3] = ALUresult; //writing ALUresult to rd
-  else
-  Reg [r2] = ALUresult; //Writing ALUresult to rt
-  }
-  }
+    if (RegWrite == 1) {
+      if (MemtoReg ==1 && RegDst == 1) {
+        Reg[r3] = memdata;
+      }
+      else if (MemtoReg == 1 && RegDst != 1) {
+        Reg[r2] = memdata;
+      }
+      else if (MemtoReg != 1 && RegDst == 1) {
+        Reg[r3] = ALUresult;
+      }
+      else if (MemtoReg != 1 && RegDst != 1) {
+        Reg[r2] = ALUresult;
+      }
+    }
 }
-
-
 /* PC update */
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
