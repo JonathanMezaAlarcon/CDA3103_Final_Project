@@ -67,7 +67,40 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 /* 15 Points */
 int instruction_decode(unsigned op,struct_controls *controls)
 {
+  switch(op)
+  {
+    case 0: controls->RegDst = 1;   controls->ALUSrc = 0;  controls->MemtoReg = 0;
+            controls->RegWrite = 1; controls->MemRead = 0; controls->MemWrite = 0;
+            controls->Branch = 0;   controls->Jump = 0;    controls->ALUOp = 7;
+            return 0;
 
+    case 2: controls->RegDst = 2;   controls->ALUSrc = 2;  controls->MemtoReg = 2;
+            controls->RegWrite = 0; controls->MemRead = 0; controls->MemWrite = 0;
+            controls->Branch = 0;   controls->Jump = 1;    controls->ALUOp = 2;
+            return 0;
+
+    case 4: controls->RegDst = 2;   controls->ALUSrc = 0;  controls->MemtoReg = 2;
+            controls->RegWrite = 0; controls->MemRead = 0; controls->MemWrite = 0;
+            controls->Branch = 1;   controls->Jump = 0;    controls->ALUOp = 1;
+            return 0;
+
+    case 8: controls->RegDst = 0;   controls->ALUSrc = 1;  controls->MemtoReg = 0;
+            controls->RegWrite = 1; controls->MemRead = 0; controls->MemWrite = 0;
+            controls->Branch = 0;   controls->Jump = 0;    controls->ALUOp = 0;
+            return 0;
+
+    case 35:controls->RegDst = 0;   controls->ALUSrc = 1;  controls->MemtoReg = 1;
+            controls->RegWrite = 1; controls->MemRead = 1; controls->MemWrite = 0;
+            controls->Branch = 0;   controls->ALUOp = 0;   controls->Jump = 0;
+            return 0;
+
+    case 43:controls->RegDst = 2;   controls->ALUSrc = 1;  controls->MemtoReg = 2;
+            controls->RegWrite = 0; controls->MemRead = 0; controls->MemWrite = 1;
+            controls->Branch = 0;   controls->ALUOp = 0;   controls->Jump = 0;
+            return 0;
+
+    default : return 1;
+  }
 }
 
 /* Read Register */
@@ -103,19 +136,19 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
     //if ALUOp is equal to 7, then ALUControl will depend on funct
     if (ALUOp == 7){
       switch(funct){
-        case 32: ALU(data1, extended_value, 0, &ALUresult, &Zero); return 0;
-        case 34: ALU(data1, extended_value, 1, &ALUresult, &Zero); return 0;
-        case 36: ALU(data1, extended_value, 4, &ALUresult, &Zero); return 0;
-        case 37: ALU(data1, extended_value, 5, &ALUresult, &Zero); return 0;
-        case 42: ALU(data1, extended_value, 2, &ALUresult, &Zero); return 0;
-        case 43: ALU(data1, extended_value, 3, &ALUresult, &Zero); return 0;
-        case 0: ALU(data1, extended_value, 6, &ALUresult, &Zero); return 0;
-        case 39: ALU(data1, extended_value, 7, &ALUresult, &Zero); return 0;
+        case 32: ALU(data1, extended_value, 0, ALUresult, Zero); return 0;
+        case 34: ALU(data1, extended_value, 1, ALUresult, Zero); return 0;
+        case 36: ALU(data1, extended_value, 4, ALUresult, Zero); return 0;
+        case 37: ALU(data1, extended_value, 5, ALUresult, Zero); return 0;
+        case 42: ALU(data1, extended_value, 2, ALUresult, Zero); return 0;
+        case 43: ALU(data1, extended_value, 3, ALUresult, Zero); return 0;
+        case 0: ALU(data1, extended_value, 6, ALUresult, Zero); return 0;
+        case 39: ALU(data1, extended_value, 7, ALUresult, Zero); return 0;
       }
     }
     //if ALUOp is not 7, then ALUOp is passed to ALUControl
     if (ALUOp != 7){
-      ALU(data1, extended_value, ALUOp, &ALUresult, &Zero);
+      ALU(data1, extended_value, ALUOp, ALUresult, Zero);
       return 0;
     }
   }
@@ -125,19 +158,19 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
     //if ALUOp is equal to 7, then ALUControl will depend on funct
     if (ALUOp == 7){
       switch(funct){
-        case 32: ALU(data1, data2, 0, &ALUresult, &Zero); return 0;
-        case 34: ALU(data1, data2, 1, &ALUresult, &Zero); return 0;
-        case 36: ALU(data1, data2, 4, &ALUresult, &Zero); return 0;
-        case 37: ALU(data1, data2, 5, &ALUresult, &Zero); return 0;
-        case 42: ALU(data1, data2, 2, &ALUresult, &Zero); return 0;
-        case 43: ALU(data1, data2, 3, &ALUresult, &Zero); return 0;
-        case 0: ALU(data1, data2, 6, &ALUresult, &Zero); return 0;
-        case 39: ALU(data1, data2, 7, &ALUresult, &Zero); return 0;
+        case 32: ALU(data1, data2, 0, ALUresult, Zero); return 0;
+        case 34: ALU(data1, data2, 1, ALUresult, Zero); return 0;
+        case 36: ALU(data1, data2, 4, ALUresult, Zero); return 0;
+        case 37: ALU(data1, data2, 5, ALUresult, Zero); return 0;
+        case 42: ALU(data1, data2, 2, ALUresult, Zero); return 0;
+        case 43: ALU(data1, data2, 3, ALUresult, Zero); return 0;
+        case 0: ALU(data1, data2, 6, ALUresult, Zero); return 0;
+        case 39: ALU(data1, data2, 7, ALUresult, Zero); return 0;
       }
     }
     //if ALUOp is not 7, then ALUOp is passed to ALUControl
     if (ALUOp != 7){
-      ALU(data1, data2, ALUOp, &ALUresult, &Zero);
+      ALU(data1, data2, ALUOp, ALUresult, Zero);
       return 0;
     }
   }
@@ -150,7 +183,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
   //If MemWrite is 1, write value of data 2 to ALUresult
-  if (MemWrite == 1] {
+  if (MemWrite == 1) {
       if (ALUresult % 4 == 0) //Check word alignment
           Mem[ALUresult >> 2] = data2;
   else
@@ -166,26 +199,27 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
   }
 }
 
-
 /* Write Register */
 /* 10 Points */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
   if (RegWrite == 1) {
-      if (MemtoReg == 1) {
-          if (RegDst == 1) {
-              Reg[r3] = memdata;  //writing memdata to rd
-          else
-              Reg[r2] = memdata; //writing memdata to rt
-          }
-      else
-          if (RegDst == 1)
-              Reg [r3] = ALUresult; //writing ALUresult to rd
-          else
-              Reg [r2] = ALUresult; //Writing ALUresult to rt
-      }
+  if (MemtoReg == 1) {
+  if (RegDst == 1) {
+  Reg[r3] = memdata;
+} //writing memdata to rd
+  else
+  Reg[r2] = memdata; //writing memdata to rt
+  }
+  else {
+  if (RegDst == 1)
+  Reg [r3] = ALUresult; //writing ALUresult to rd
+  else
+  Reg [r2] = ALUresult; //Writing ALUresult to rt
+  }
   }
 }
+
 
 /* PC update */
 /* 10 Points */
